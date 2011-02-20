@@ -1,9 +1,13 @@
-Aggro is a simple feed aggregator written in python using gevent
+Aggro is a simple feed aggregator written in python using gevent<br>
 
 ## Installation
 
-pip install -r requirements.txt
-python setup.py install
+To install the requirements: <br>
+pip install -r requirements.txt<br>
+
+And to install aggro:<br>
+
+python setup.py install<br>
 
 ## Usage
 
@@ -29,5 +33,5 @@ This is from the examples/basic.py file:
     aggro = Aggregator(feeds, new_entry)
     aggro.start() # runs indefinitely
 
-This will kick off the aggregator observing the four given feeds at the given update interval (default 60 seconds).
+This will kick off the aggregator observing the four given feeds at the given update interval (default 60 seconds). <br>
 Whenever a new entry is found the given new_entry_handler is called.
