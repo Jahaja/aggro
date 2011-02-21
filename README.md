@@ -1,4 +1,7 @@
-Aggro is a simple feed aggregator written in python using gevent<br>
+aggro
+=====
+
+A simple feed aggregator written in python using gevent<br>
 
 ## Installation
 

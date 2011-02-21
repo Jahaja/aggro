@@ -1,4 +1,5 @@
 # coding=UTF-8
+from datetime import datetime
 
 import feedparser
 import gevent
@@ -8,11 +9,23 @@ from collections import deque
 
 logger = logging.getLogger("aggregator")
 
+class AggregatorException(Exception):
+    pass
+
 class Aggregator(object):
     _checksums_per_feed = 500
     checksums = {}
 
     def __init__(self, feeds, new_entry_handler, min_date=None, update_interval=60):
+        if not callable(new_entry_handler):
+            raise AggregatorException("Given new_entry_handler is not callable")
+
+        if not isinstance(feeds, dict):
+            raise AggregatorException("The feeds parameter must be a dict.")
+
+        if min_date and not isinstance(min_date, datetime):
+            raise AggregatorException("The optional min_date parameter, if given, must be an instance of datetime")
+
         self.feeds = feeds
         self.new_entry_handler = new_entry_handler
         self.checksums = dict([(feed, deque(maxlen=self._checksums_per_feed)) for feed in self.feeds.keys()])
@@ -44,12 +57,15 @@ class Aggregator(object):
                     gevent.spawn(self.parse, feed, d)
                 else:
                     self.handle_unknown_status(feed, d)
+            else:
+                logging.warning("Received response for feed %s did not contain a HTTP status code. Response discarded." % feed)
 
             gevent.sleep(self.update_interval)
 
     def handle_redirect(self, feed, document):
         logger.info("Redirect found for feed %s, updated url will be used next update." % feed)
-        self.feeds[feed] = document.href
+        if hasattr(document, "href") and document.href:
+            self.feeds[feed] = document.href
 
     def handle_unknown_status(self, feed, d):
         logger.warning("Feed responded with an unknown status code of %d" % d.status)
